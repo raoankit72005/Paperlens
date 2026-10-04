@@ -1,0 +1,14 @@
+{
+  "dataset": "BEIR/SciFact",
+  "source_url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip",
+  "dev_source": "official train qrels, deterministic hash sample",
+  "test_source": "all official test qrels; never subsampled",
+  "dev_count": 100,
+  "test_count": 300,
+  "corpus_count": 5183,
+  "files": {
+    "papers.json": "98700ab1df8cba5104393ad6ec4676cd7f3da864b93df405ddce57c04b4a1c8e",
+    "dev_queries.json": "f6a62933f906322eaf0eae6db29a614f9997c1ca21919309667b084479abac69",
+    "test_queries.json": "9a88d6d3c07dfc7d4abfe596973aa3d3eaa596c1f2440f3a757c4e89464adb5c"
+  }
+}

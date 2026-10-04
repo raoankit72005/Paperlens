@@ -67,6 +67,33 @@ python scripts/prepare_scifact.py --source /path/to/scifact
 
 For CPU verification without model downloads, `tune --backend lsa --no-rerank` followed by `test` checks the split/config workflow but **is not** the transformer/reranker experiment.
 
+## Measured held-out results
+
+Executed on CPU with 4 PyTorch threads: **5,183 abstracts, 100 development queries, all 300 official test queries**. Development selected alpha=0.75 and candidate pool=20 from the three fusion weights, with candidate depth fixed at 20 for this measured run. The wider 20/50 grid remains available in the CLI. The configuration was frozen before test evaluation.
+
+| Method | Recall@10 | nDCG@10 | MRR@10 | Median search ms |
+|---|---:|---:|---:|---:|
+| BM25 | 0.7849 | 0.6645 | 0.6325 | 4.7 |
+| Transformer dense | 0.7833 | 0.6451 | 0.6047 | 21.2 |
+| Hybrid | 0.8017 | 0.6685 | 0.6312 | 32.3 |
+| Hybrid + reranker | 0.8112 | 0.6865 | 0.6559 | 1368.3 |
+
+Hybrid + reranking increased nDCG@10 by about **0.022 absolute** over BM25 in this run, with substantial additional CPU latency. This is a measured difference, not a claim of statistical significance or state-of-the-art performance. SciFact evaluates scientific claim-to-abstract retrieval; it is not a direct benchmark of ML-paper browsing queries.
+
+- Full test rankings, metrics and runtime provenance: [scifact_test.json](reports/benchmarks/scifact_test.json)
+- Development comparison: [scifact_dev.json](reports/benchmarks/scifact_dev.json)
+- Frozen configuration: [scifact_config.json](reports/benchmarks/scifact_config.json)
+- Corpus/split fingerprints: [scifact_manifest.json](reports/benchmarks/scifact_manifest.json)
+
+The recorded models are pinned to encoder revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41` and reranker revision `233902d25c440f23af6f7d6e94d2946bac0bee0a`. To reproduce the exact measured setting:
+
+```bash
+python scripts/prepare_scifact.py
+python -m paperlens.benchmark test --config reports/benchmarks/scifact_config.json
+```
+
+Ten automated checks pass. A real neural smoke test also verified QLoRA ranking first for the limited-GPU-memory fine-tuning query. The Streamlit UI itself has not been browser-tested in this environment.
+
 ## Small development smoke test
 
 The bundled `data/papers.json` has 22 real paper titles/arXiv links and author-written short summaries. Its eight labeled queries are a toy development set. The original `reports/evaluation.json` contains the previous LSA run; these figures are **not** held-out SciFact results.
