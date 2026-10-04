@@ -1,0 +1,64 @@
+[
+  {
+    "id": "q1",
+    "text": "answer questions using external documents",
+    "relevance": {
+      "2005.11401": 2,
+      "2004.04906": 2,
+      "2309.15217": 1
+    }
+  },
+  {
+    "id": "q2",
+    "text": "fine tune a language model with limited GPU memory",
+    "relevance": {
+      "2305.14314": 2,
+      "2106.09685": 2
+    }
+  },
+  {
+    "id": "q3",
+    "text": "make a small model learn from a larger teacher",
+    "relevance": {
+      "1503.02531": 2,
+      "1910.01108": 2
+    }
+  },
+  {
+    "id": "q4",
+    "text": "learn image features without class labels",
+    "relevance": {
+      "2002.05709": 2
+    }
+  },
+  {
+    "id": "q5",
+    "text": "reduce memory transfers for exact attention",
+    "relevance": {
+      "2205.11916": 2,
+      "2307.08691": 2
+    }
+  },
+  {
+    "id": "q6",
+    "text": "compare search generalization across domains",
+    "relevance": {
+      "2104.08663": 2
+    }
+  },
+  {
+    "id": "q7",
+    "text": "align model outputs with preference pairs",
+    "relevance": {
+      "2305.18290": 2,
+      "2203.02155": 1
+    }
+  },
+  {
+    "id": "q8",
+    "text": "generate images by removing noise",
+    "relevance": {
+      "2006.11239": 2
+    }
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "corpus_size": 22,
+  "query_count": 8,
+  "backend": "lsa",
+  "k": 10,
+  "warning": "Curated development toy set; not an independent benchmark or generalization claim. Latency excludes indexing/model load.",
+  "results": [
+    {
+      "mode": "bm25",
+      "recall_at_k": 0.9583333333333333,
+      "ndcg_at_k": 0.8352674347979481,
+      "mrr_at_k": 0.8958333333333333,
+      "median_ms": 0.936591000026965,
+      "p95_ms": 0.9941158000003725
+    },
+    {
+      "mode": "semantic",
+      "recall_at_k": 0.9583333333333333,
+      "ndcg_at_k": 0.8699486269434648,
+      "mrr_at_k": 0.8888888888888888,
+      "median_ms": 1.1187700000050427,
+      "p95_ms": 1.592777649995014
+    },
+    {
+      "mode": "hybrid",
+      "recall_at_k": 0.9583333333333333,
+      "ndcg_at_k": 0.8396396088959925,
+      "mrr_at_k": 0.8958333333333333,
+      "median_ms": 0.6330765000086558,
+      "p95_ms": 0.8506174499984809
+    }
+  ]
+}
