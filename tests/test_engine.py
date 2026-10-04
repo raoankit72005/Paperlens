@@ -3,7 +3,7 @@ from paperlens.engine import SearchEngine
 from paperlens.evaluate import metrics
 class RetrievalTest(unittest.TestCase):
     @classmethod
-    def setUpClass(cls): cls.e=SearchEngine(json.load(open('data/papers.json')))
+    def setUpClass(cls): cls.e=SearchEngine(json.loads(__import__('pathlib').Path('data/papers.json').read_text()),backend='lsa')
     def test_exact_title(self): self.assertEqual(self.e.search('QLoRA',mode='bm25')[0]['id'],'2305.14314')
     def test_blank_and_unknown(self):
         self.assertEqual(self.e.search(''),[]);self.assertEqual(self.e.search('zzzzunseenword'),[])

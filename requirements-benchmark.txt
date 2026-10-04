@@ -1,0 +1,6 @@
+# Measured CPU benchmark environment; install PyTorch first as documented.
+numpy==2.3.5
+scikit-learn==1.8.0
+sentence-transformers==3.4.1
+transformers==4.48.3
+torch==2.5.1

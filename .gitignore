@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .env
 .sites-runtime/
+.cache/
+data/scifact/
+reports/scifact/

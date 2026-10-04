@@ -1,23 +1,40 @@
-import argparse,json,math,time,pathlib
-import numpy as np
-from .engine import SearchEngine
+"""Ad hoc development evaluation; held-out experiments use paperlens.benchmark."""
+import argparse
+import json
+import math
+from pathlib import Path
 
-def metrics(results,relevance,k):
-    ids=[p['id'] for p in results[:k]]
-    relevant={i for i,g in relevance.items() if g>0}
-    recall=len(set(ids)&relevant)/len(relevant) if relevant else 0
-    dcg=sum((2**relevance.get(i,0)-1)/math.log2(r+2) for r,i in enumerate(ids))
-    ideal=sum((2**g-1)/math.log2(r+2) for r,g in enumerate(sorted(relevance.values(),reverse=True)[:k]))
-    rr=next((1/(r+1) for r,i in enumerate(ids) if i in relevant),0)
-    return recall,dcg/ideal if ideal else 0,rr
+
+def metrics(results, relevance, k):
+    if k < 1 or any(g < 0 for g in relevance.values()):
+        raise ValueError('k must be positive and relevance grades nonnegative')
+    ids = [p['id'] for p in results[:k]]
+    if len(ids) != len(set(ids)):
+        raise ValueError('Duplicate retrieved IDs invalidate ranking metrics')
+    relevant = {i for i, g in relevance.items() if g > 0}
+    recall = len(set(ids) & relevant)/len(relevant) if relevant else 0
+    dcg = sum((2**relevance.get(i, 0)-1)/math.log2(r+2) for r, i in enumerate(ids))
+    ideal = sum((2**g-1)/math.log2(r+2) for r, g in enumerate(sorted(relevance.values(), reverse=True)[:k]))
+    rr = next((1/(r+1) for r, i in enumerate(ids) if i in relevant), 0)
+    return recall, dcg/ideal if ideal else 0, rr
+
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--corpus',default='data/papers.json');ap.add_argument('--queries',default='data/queries.json');ap.add_argument('--backend',choices=['lsa','transformer'],default='lsa');ap.add_argument('--k',type=int,default=10);ap.add_argument('--output',default='reports/evaluation.json');ap.add_argument('--rerank',action='store_true');args=ap.parse_args()
-    engine=SearchEngine(json.load(open(args.corpus)),args.backend);queries=json.load(open(args.queries));report={'corpus_size':len(engine.papers),'query_count':len(queries),'backend':args.backend,'k':args.k,'warning':'Curated development toy set; not an independent benchmark or generalization claim. Latency excludes indexing/model load.','results':[]}
-    for mode in ('bm25','semantic','hybrid'):
-        values=[];times=[]
-        for q in queries:
-            start=time.perf_counter();out=engine.search(q['text'],mode,k=args.k,rerank=args.rerank);times.append((time.perf_counter()-start)*1000);values.append(metrics(out,q['relevance'],args.k))
-        avg=np.mean(values,axis=0);report['results'].append(dict(mode=mode,recall_at_k=float(avg[0]),ndcg_at_k=float(avg[1]),mrr_at_k=float(avg[2]),median_ms=float(np.median(times)),p95_ms=float(np.percentile(times,95))))
-    pathlib.Path(args.output).parent.mkdir(parents=True,exist_ok=True);pathlib.Path(args.output).write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
-if __name__=='__main__': main()
+    from .engine import SearchEngine
+    from .benchmark import evaluate, validate_queries, provenance
+    ap=argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('--corpus',default='data/papers.json');ap.add_argument('--queries',default='data/queries.json')
+    ap.add_argument('--backend',choices=['lsa','transformer'],default='transformer')
+    ap.add_argument('--k',type=int,default=10);ap.add_argument('--candidate-k',type=int,default=50)
+    ap.add_argument('--alpha',type=float,default=.5);ap.add_argument('--device',default='cpu')
+    ap.add_argument('--output',default='reports/development.json');ap.add_argument('--rerank',action='store_true')
+    a=ap.parse_args();papers=json.loads(Path(a.corpus).read_text());queries=json.loads(Path(a.queries).read_text())
+    validate_queries(queries,papers);engine=SearchEngine(papers,backend=a.backend,device=a.device)
+    report=dict(corpus_size=len(papers),query_count=len(queries),k=a.k,backend=a.backend,
+        warning='Ad hoc/development evaluation, not an independently held-out test.',provenance=provenance(engine,a.corpus),results=[])
+    for mode,rerank in [('bm25',False),('semantic',False),('hybrid',False)]+([('hybrid',True)] if a.rerank else []):
+        engine.query_vector.cache_clear()
+        report['results'].append(evaluate(engine,queries,mode=mode,k=a.k,alpha=a.alpha,candidate_k=a.candidate_k,rerank=rerank))
+    Path(a.output).parent.mkdir(parents=True,exist_ok=True);Path(a.output).write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
+
+if __name__=='__main__':main()
