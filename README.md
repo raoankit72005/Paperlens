@@ -92,7 +92,7 @@ python scripts/prepare_scifact.py
 python -m paperlens.benchmark test --config reports/benchmarks/scifact_config.json
 ```
 
-Ten automated checks pass. A real neural smoke test also verified QLoRA ranking first for the limited-GPU-memory fine-tuning query. The Streamlit UI itself has not been browser-tested in this environment.
+Ten automated checks pass. A real neural smoke test also verified QLoRA ranking first for the limited-GPU-memory fine-tuning query. The Streamlit UI has an AppTest regression check for query and settings reruns using a stub retrieval engine; the deployed browser session has not been tested here.
 
 ## Small development smoke test
 
